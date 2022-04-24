@@ -1,4 +1,4 @@
-# Code of AABiGAN
+# Code of AA-BiGAN
 Main Dependencies
 torch 1.1.0
 torchvision 0.3.0
