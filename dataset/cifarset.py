@@ -52,15 +52,15 @@ def create_loader(opt,kwargs):
       
         dataset1.data = np.concatenate((data1_p,data1_n[randIdx[:abnormal_num]]),axis=0)
         dataset1.targets = np.concatenate((target1_p,target1_n[randIdx[:abnormal_num]]),axis=0)
-    train_pos = torch.utils.data.DataLoader(dataset1, batch_size=opt.batch_size, shuffle=True, drop_last = True,**kwargs)
+    train_pos = torch.utils.data.DataLoader(dataset1, batch_size=opt.batch_size, shuffle=True, drop_last = False,**kwargs)
   
     
     dataset2 = datasets.CIFAR10('data-cifar', train=True, download=True,transform=data_transform)
     data2 = dataset2.data
     target2 = np.array(dataset2.targets)
     if(opt.gamma_p==0):
-        data2 = data2[target2==opt.auxiliary_digit]
-        target2 = target2[target2==opt.auxiliary_digit]
+        data2 = data2[target2!=opt.normal_digit]
+        target2 = target2[target2!=opt.normal_digit]
     else:
         data2 = data1_n[randIdx[abnormal_num:]]
         target2 = target1_n[randIdx[abnormal_num:]]
@@ -91,13 +91,13 @@ def create_loader(opt,kwargs):
     dataset2.data = data2[randIdx[:auxiliary_num]]
     dataset2.targets = np.array(target2)[randIdx[:auxiliary_num]]
     if(opt.gamma_l == 0.1):
-        train_neg = torch.utils.data.DataLoader(dataset2, batch_size=opt.batch_size//9, shuffle=True, drop_last = True,**kwargs)
+        train_neg = torch.utils.data.DataLoader(dataset2, batch_size=opt.batch_size//9, shuffle=True, drop_last = False,**kwargs)
     elif(opt.gamma_l == 0.05):
-        train_neg = torch.utils.data.DataLoader(dataset2, batch_size=opt.batch_size//19, shuffle=True, drop_last = True,**kwargs)
+        train_neg = torch.utils.data.DataLoader(dataset2, batch_size=opt.batch_size//19, shuffle=True, drop_last = False,**kwargs)
     elif(opt.gamma_l == 0.2):
-        train_neg = torch.utils.data.DataLoader(dataset2, batch_size=opt.batch_size//4, shuffle=True, drop_last = True,**kwargs)
+        train_neg = torch.utils.data.DataLoader(dataset2, batch_size=opt.batch_size//4, shuffle=True, drop_last = False,**kwargs)
     else:
-        train_neg = torch.utils.data.DataLoader(dataset2, batch_size=50, shuffle=True, drop_last = True, **kwargs)
+        train_neg = torch.utils.data.DataLoader(dataset2, batch_size=50, shuffle=True, drop_last = False, **kwargs)
     dataset_val = datasets.CIFAR10('data-cifar', train=False, download=True,transform=data_transform)
     data_val = dataset_val.data
     target_val = np.array(dataset_val.targets)
@@ -113,11 +113,11 @@ def create_loader(opt,kwargs):
     dataset_val.data=np.concatenate((data_val_normal[randIdx_normal[:200]],data_val_abnormal[randIdx_abnormal[:1800]]),axis=0)
     dataset_val.targets = np.concatenate((target_val_normal[randIdx_normal[:200]],target_val_abnormal[randIdx_abnormal[:1800]]),axis=0)
 
-    val_loader = torch.utils.data.DataLoader(dataset_val, batch_size=opt.batch_size, shuffle=True, drop_last = True,**kwargs)
+    val_loader = torch.utils.data.DataLoader(dataset_val, batch_size=opt.batch_size, shuffle=True, drop_last = False,**kwargs)
 
     dataset_test = datasets.CIFAR10('data-cifar', train=False, download=True,transform=data_transform)
     dataset_test.data=np.concatenate((data_val_normal[randIdx_normal[200:]],data_val_abnormal[randIdx_abnormal[1800:]]),axis=0)
     dataset_test.targets = np.concatenate((target_val_normal[randIdx_normal[200:]],target_val_abnormal[randIdx_abnormal[1800:]]),axis=0)
 
-    test_loader = torch.utils.data.DataLoader(dataset_test, batch_size=opt.batch_size, shuffle=True, drop_last = True,**kwargs)
+    test_loader = torch.utils.data.DataLoader(dataset_test, batch_size=opt.batch_size, shuffle=True, drop_last = False,**kwargs)
     return train_pos,train_neg,val_loader,test_loader
